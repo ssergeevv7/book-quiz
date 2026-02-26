@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Какая книга тебе подходит?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f7f5f0;
+    color: #2c2c2c;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+  }
+
+  .header p {
+    font-size: 0.95rem;
+    color: #666;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+
+  .question-block {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s;
+  }
+
+  .question-block:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .question-number {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #9a8c7a;
+    margin-bottom: 8px;
+  }
+
+  .question-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    display: block;
+    padding: 14px 18px;
+    border: 1.5px solid #e0dcd4;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.93rem;
+    transition: all 0.15s;
+    background: #fff;
+    text-align: left;
+    color: #2c2c2c;
+    position: relative;
+  }
+
+  .option:hover {
+    border-color: #9a8c7a;
+    background: #faf8f4;
+  }
+
+  .option.selected {
+    border-color: #5c4f3a;
+    background: #f0ece4;
+    font-weight: 500;
+  }
+
+  .option.selected::before {
+    content: '';
+    position: absolute;
+    left: -1.5px;
+    top: -1.5px;
+    bottom: -1.5px;
+    width: 4px;
+    background: #5c4f3a;
+    border-radius: 8px 0 0 8px;
+  }
+
+  .submit-area {
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .submit-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 16px 48px;
+    border: none;
+    border-radius: 8px;
+    background: #5c4f3a;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .submit-btn:hover {
+    background: #4a3f2e;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(92,79,58,0.3);
+  }
+
+  .submit-btn:disabled {
+    background: #c5bfb3;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .unanswered-hint {
+    font-size: 0.85rem;
+    color: #b0a899;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* Result */
+  .result-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fadeIn 0.3s;
+  }
+
+  .result-overlay.visible {
+    display: flex;
+  }
+
+  .result-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px 32px;
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    animation: slideUp 0.4s ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .result-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #9a8c7a;
+    margin-bottom: 16px;
+  }
+
+  .result-book {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.9rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+  }
+
+  .result-author {
+    font-size: 0.95rem;
+    color: #888;
+    margin-bottom: 20px;
+  }
+
+  .result-genre {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 4px 14px;
+    border-radius: 20px;
+    background: #f0ece4;
+    color: #5c4f3a;
+    margin-bottom: 20px;
+  }
+
+  .result-description {
+    font-size: 0.93rem;
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 28px;
+    text-align: left;
+  }
+
+  .result-scores {
+    text-align: left;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+    margin-bottom: 24px;
+  }
+
+  .result-scores h3 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #9a8c7a;
+    margin-bottom: 14px;
+  }
+
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .score-name {
+    font-size: 0.85rem;
+    color: #555;
+    min-width: 160px;
+    flex-shrink: 0;
+  }
+
+  .score-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: #f0ece4;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .score-bar {
+    height: 100%;
+    background: #5c4f3a;
+    border-radius: 4px;
+    transition: width 0.6s ease-out;
+  }
+
+  .score-bar.winner {
+    background: #3a6b5c;
+  }
+
+  .close-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 12px 36px;
+    border: 1.5px solid #e0dcd4;
+    border-radius: 8px;
+    background: #fff;
+    color: #2c2c2c;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .close-btn:hover {
+    border-color: #5c4f3a;
+    background: #faf8f4;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 24px 16px 40px; }
+    .header h1 { font-size: 1.7rem; }
+    .question-block { padding: 20px; }
+    .question-text { font-size: 1.2rem; }
+    .result-card { padding: 28px 20px; }
+    .result-book { font-size: 1.5rem; }
+    .score-name { min-width: 120px; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Какая книга тебе подходит?</h1>
+    <p>Ответь на 12 вопросов — и узнаешь, какую из пяти книг стоит прочитать в марте</p>
+  </div>
+
+  <div id="quiz"></div>
+
+  <div class="submit-area">
+    <button class="submit-btn" id="submitBtn" disabled onclick="showResult()">Узнать результат</button>
+    <p class="unanswered-hint" id="hint"></p>
+  </div>
+</div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card" id="resultCard"></div>
+</div>
+
+<script>
+// Books: B=Барнс, I=Исигуро, M=Макьюэн, H=Хейг, O=О'Фаррелл
+const books = {
+  B: {
+    title: '«Предчувствие конца»',
+    author: 'Джулиан Барнс',
+    genre: 'Психологический роман · ~160 стр.',
+    desc: 'Короткая книга, но по отзывам бьёт сильно. Пенсионер получает письмо, которое заставляет переосмыслить всю молодость. Про ненадёжность памяти и то, как мы удобно переписываем своё прошлое.'
+  },
+  I: {
+    title: '«Не отпускай меня»',
+    author: 'Кадзуо Исигуро',
+    genre: 'Антиутопия / драма · ~350 стр.',
+    desc: 'Дети растут в странной закрытой школе и постепенно понимают, зачем они там на самом деле. Начинается как школьная история, а потом земля уходит из-под ног. Нобелевский лауреат.'
+  },
+  M: {
+    title: '«Искупление»',
+    author: 'Иэн Макьюэн',
+    genre: 'Драма / военный роман · ~450 стр.',
+    desc: 'Одна ложь тринадцатилетней девочки ломает жизни всем вокруг. Действие начинается в английской усадьбе 1935 года и проходит через Вторую мировую. Есть экранизация с Кирой Найтли.'
+  },
+  H: {
+    title: '«Полночная библиотека»',
+    author: 'Мэтт Хейг',
+    genre: 'Фантастика / философский роман · ~260 стр.',
+    desc: 'Девушка между жизнью и смертью попадает в библиотеку, где каждая книга — версия её жизни, в которой она сделала другой выбор. Можно было стать рок-звездой или просто счастливой.'
+  },
+  O: {
+    title: '«Хамнет»',
+    author: 'Мэгги О\'Фаррелл',
+    genre: 'Исторический роман · ~384 стр.',
+    desc: 'История о сыне Шекспира, который умер в 11 лет, и о том, как эта потеря, возможно, породила «Гамлета». Книга не про великого драматурга, а про его жену, горе и Англию XVI века.'
+  }
+};
+
+const questions = [
+  {
+    q: 'Сколько страниц ты реально готов(а) осилить за месяц?',
+    opts: [
+      { text: 'До 200 — коротко и по делу', scores: {B:3, H:1} },
+      { text: '200–300 — золотая середина', scores: {H:3, I:1} },
+      { text: '300–400 — могу и побольше', scores: {I:2, O:2} },
+      { text: '400+ — люблю погрузиться надолго', scores: {M:3, O:1} }
+    ]
+  },
+  {
+    q: 'Какой фильм ты бы выбрал(а) на вечер пятницы?',
+    opts: [
+      { text: 'Психологический триллер, где всё не то, чем кажется', scores: {B:3, M:1} },
+      { text: 'Научная фантастика с человеческой историей', scores: {I:3} },
+      { text: 'Красивую историческую драму', scores: {M:2, O:2} },
+      { text: 'Что-то доброе и жизнеутверждающее', scores: {H:3} }
+    ]
+  },
+  {
+    q: 'Какая тема тебя сейчас больше цепляет?',
+    opts: [
+      { text: 'Память и самообман — правда ли мы помним то, что помним?', scores: {B:3} },
+      { text: 'Что значит быть человеком', scores: {I:3, H:1} },
+      { text: 'Цена одной ошибки', scores: {M:3} },
+      { text: 'А что, если бы я выбрал(а) другую жизнь?', scores: {H:3} }
+    ]
+  },
+  {
+    q: 'Какой главный герой тебе ближе?',
+    opts: [
+      { text: 'Обычный человек, который оглядывается на прожитую жизнь', scores: {B:3} },
+      { text: 'Тот, кто не до конца понимает свой собственный мир', scores: {I:3} },
+      { text: 'Ребёнок, чья ошибка отзывается через десятилетия', scores: {M:3} },
+      { text: 'Сильная женщина в жестоком мире', scores: {O:3, H:1} }
+    ]
+  },
+  {
+    q: 'Как ты относишься к неожиданным финалам?',
+    opts: [
+      { text: 'Обожаю — когда в конце всё переворачивается', scores: {B:2, M:3} },
+      { text: 'Люблю, когда финал заставляет задуматься', scores: {I:2, O:2} },
+      { text: 'Мне важнее путешествие, чем финал', scores: {H:2, O:2} },
+      { text: 'Главное, чтобы не было предсказуемо', scores: {B:2, M:1, I:1} }
+    ]
+  },
+  {
+    q: 'Какая эпоха тебе интереснее?',
+    opts: [
+      { text: 'Наше время — узнаваемые реалии', scores: {B:2, H:2} },
+      { text: 'Недалёкое будущее или альтернативная реальность', scores: {I:3, H:1} },
+      { text: 'Первая половина XX века — война, усадьбы, страсти', scores: {M:3} },
+      { text: 'Елизаветинская Англия — чума, Шекспир, травы', scores: {O:3} }
+    ]
+  },
+  {
+    q: 'Насколько ты готов(а) к тяжёлым эмоциям?',
+    opts: [
+      { text: 'Давай — хочу, чтобы книга тронула по-настоящему', scores: {I:2, M:2, O:2} },
+      { text: 'Умеренно — пусть будет грустно, но с надеждой', scores: {H:3, B:1} },
+      { text: 'Хочу интеллектуальный вызов, а не слёзы', scores: {B:3} },
+      { text: 'Мне нужен свет в конце тоннеля', scores: {H:3} }
+    ]
+  },
+  {
+    q: 'Что тебя больше привлекает в книге?',
+    opts: [
+      { text: 'Хитрая структура повествования', scores: {B:3, M:1} },
+      { text: 'Атмосфера — чтобы затянула с первых страниц', scores: {I:2, O:2} },
+      { text: 'Масштаб — несколько эпох, судьбы переплетаются', scores: {M:3} },
+      { text: 'Идея, которая заставляет пересмотреть свою жизнь', scores: {H:3} }
+    ]
+  },
+  {
+    q: 'Литературная награда — это для тебя...',
+    opts: [
+      { text: 'Аргумент «за» — если дали Букера, значит стоит', scores: {B:3} },
+      { text: 'Нобелевка — это серьёзно', scores: {I:3} },
+      { text: 'Мне важнее экранизация, чем премия', scores: {M:3} },
+      { text: 'Популярность важнее наград', scores: {H:3, O:1} }
+    ]
+  },
+  {
+    q: 'Какое описание книги зацепило бы тебя в книжном?',
+    opts: [
+      { text: '«Рассказчик врёт — и это самое интересное»', scores: {B:3} },
+      { text: '«Ты не готов к тому, что откроется в середине»', scores: {I:3} },
+      { text: '«Одно решение. Сломанные жизни. Неожиданный финал.»', scores: {M:3} },
+      { text: '«А что, если прожить все свои жизни за одну ночь?»', scores: {H:3} }
+    ]
+  },
+  {
+    q: 'С кем из авторов ты бы хотел(а) выпить кофе?',
+    opts: [
+      { text: 'С ироничным англичанином, который видит людей насквозь', scores: {B:3} },
+      { text: 'С тихим японцем из Лондона, который пишет про хрупкость', scores: {I:3} },
+      { text: 'С провокатором, который не боится сложных тем', scores: {M:3} },
+      { text: 'С человеком, который пишет о преодолении и надежде', scores: {H:2, O:2} }
+    ]
+  },
+  {
+    q: 'И последнее. Зачем тебе вообще книга прямо сейчас?',
+    opts: [
+      { text: 'Хочу, чтобы мозг работал — разгадывать, думать', scores: {B:3, M:1} },
+      { text: 'Хочу прочувствовать — пусть заденет', scores: {I:2, O:2} },
+      { text: 'Хочу переосмыслить свои решения', scores: {H:3} },
+      { text: 'Хочу перенестись в другое время и место', scores: {O:3, M:1} }
+    ]
+  }
+];
+
+const answers = {};
+
+function render() {
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML = questions.map((q, i) => `
+    <div class="question-block" id="q${i}">
+      <div class="question-number">Вопрос ${i + 1} из ${questions.length}</div>
+      <div class="question-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((o, j) => `
+          <button class="option" data-q="${i}" data-o="${j}" onclick="select(${i},${j})">
+            ${o.text}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function select(qi, oi) {
+  answers[qi] = oi;
+  document.querySelectorAll(`[data-q="${qi}"]`).forEach(el => el.classList.remove('selected'));
+  document.querySelector(`[data-q="${qi}"][data-o="${oi}"]`).classList.add('selected');
+  updateBtn();
+}
+
+function updateBtn() {
+  const answered = Object.keys(answers).length;
+  const btn = document.getElementById('submitBtn');
+  const hint = document.getElementById('hint');
+  if (answered === questions.length) {
+    btn.disabled = false;
+    hint.style.display = 'none';
+  } else {
+    btn.disabled = true;
+    hint.style.display = 'block';
+    hint.textContent = `Отвечено ${answered} из ${questions.length}`;
+  }
+}
+
+function showResult() {
+  const scores = {B:0, I:0, M:0, H:0, O:0};
+  for (const [qi, oi] of Object.entries(answers)) {
+    const s = questions[qi].opts[oi].scores;
+    for (const [book, pts] of Object.entries(s)) {
+      scores[book] += pts;
+    }
+  }
+
+  const maxScore = Math.max(...Object.values(scores));
+  const winner = Object.keys(scores).find(k => scores[k] === maxScore);
+  const book = books[winner];
+
+  const sortedScores = Object.entries(scores).sort((a,b) => b[1] - a[1]);
+
+  const card = document.getElementById('resultCard');
+  card.innerHTML = `
+    <div class="result-label">Тебе подходит</div>
+    <div class="result-book">${book.title}</div>
+    <div class="result-author">${book.author}</div>
+    <div class="result-genre">${book.genre}</div>
+    <p class="result-description">${book.desc}</p>
+    <div class="result-scores">
+      <h3>Все результаты</h3>
+      ${sortedScores.map(([key, score]) => `
+        <div class="score-row">
+          <span class="score-name">${books[key].title}</span>
+          <div class="score-bar-bg">
+            <div class="score-bar ${key === winner ? 'winner' : ''}" style="width: ${maxScore > 0 ? (score / maxScore * 100) : 0}%"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <button class="close-btn" onclick="closeResult()">Закрыть</button>
+  `;
+
+  document.getElementById('resultOverlay').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeResult() {
+  document.getElementById('resultOverlay').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('resultOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeResult();
+});
+
+render();
+updateBtn();
+</script>
+
+</body>
+</html>
